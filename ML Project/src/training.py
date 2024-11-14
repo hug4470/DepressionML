@@ -36,8 +36,8 @@ def modelo_entreno(df):
     x_test_scaled = minmax_scaler.transform(x_test)
 
     random_forest_model = RandomForestClassifier(
-        n_estimators=150,       
-        max_depth=40,           
+        n_estimators=30,       
+        max_depth=10,           
         min_samples_split=4,  
         min_samples_leaf=4,   
         class_weight='balanced',
