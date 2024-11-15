@@ -72,7 +72,7 @@ family_depression_history = st.checkbox('Family History of Depression', key='his
 
 # Map input values to numeric values
 marital_status = {'Single': 3, 'Married': 2, 'Divorced': 1, 'Widowed': 0}[marital_status]
-education_level = {'High School': 0, "Bachelor's Degree": 2, "Master's Degree": 3, 'PhD': 1}[education_level]
+education_level = {'High School': 0, "Bachelor's Degree": 2, "Post-university": 3, 'PhD': 1}[education_level]
 smoking_status = 1 if smoking_status else 0
 employment_status = 1 if employment_status else 0
 physical_activity_level = {'Sedentary': 0, 'Moderate': 1, 'Active': 2}[physical_activity_level]
@@ -113,3 +113,9 @@ if st.button('Predict'):
     # Display simplified result
     result = "Yes" if probability > 0.5 else "No"
     st.write(f'Chronicity Probability: {result} ({probability_percentage:.2f}%)')
+
+
+### A FUTURO: 
+# Try/except por si no se introduce un campo. 
+# Marcar campos como obligatorios con asteriscos o algo.
+#  Una introducción más de marketing en el streamlit
