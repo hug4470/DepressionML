@@ -2,120 +2,99 @@
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 import pickle
 
 # Load the trained model
-with open('../models/train_model_rf.pkl', 'rb') as f:  
+with open('../models/best_model.pkl', 'rb') as f:
     model = pickle.load(f)
 
-# App title
+
+# Streamlit app introduction with professional tone and disclaimers
 st.title('Depression Chronicity Prediction')
 
-# App description
-st.write('Based on this data, we will try to predict if you are at risk of your depression becoming chronic, in case you develop it.')
+# Hook line
+st.write("**Empower your clinical assessments with data-driven insights.**")
+
+# Detailed description with disclaimers
+st.write("""
+This tool is designed as an advanced aid to help medical professionals analyze the risk of depression chronicity in patients. While grounded in evidence-based algorithms and enriched by comprehensive data analysis, this resource is intended to supplement—not replace—clinical judgment. It serves as a guide to highlight potential red flags and deepen understanding, empowering practitioners to make well-rounded decisions with greater confidence.
+""")
+
+# Disclaimers with emojis
+st.write("⚠️ **Disclaimer**: This is not a 100% precise predictive algorithm.")
+st.write("🔄 **Note**: Depression and its progression to chronicity are highly variable and can be influenced by numerous complex factors.")
+st.write("🧑‍⚕️ **Reminder**: This prediction should be considered as one of many factors to inform professional judgment, not as a substitute for it.")
+
+# Invitation to use the tool
+st.write("Explore its potential and see how it can enhance your diagnostic process today.")
 
 # Create input forms for each variable
-st.write('Enter your age')
-age = st.number_input('Age', min_value=0, max_value=120, step=1)
-st.write('Select your marital status')
-marital_status = st.selectbox('Marital Status', ['Single', 'Married', 'Divorced', 'Widowed'])
-st.write('Select your education level')
-education_level = st.selectbox('Education Level', ['High School', "Bachelor's Degree", "Post-university", 'PhD'])
-st.write('Enter the number of children you have')
-num_children = st.number_input('Number of Children', min_value=0, max_value=20, step=1)
-st.write('Enter your ANNUAL income')
-income = st.number_input('Income', min_value=0.0, step=500.0)  # Added income input
-st.write('Check the box if you are a smoker')
-smoking_status = st.checkbox('Smoker')
-st.write('Check the box if you are currently employed')
-employment_status = st.checkbox('Employed')
+age = st.number_input('Enter your age', min_value=0, max_value=120, step=1)
+smoking_status = st.checkbox('Are you a smoker?')
+employment_status = st.checkbox('Are you currently employed?')
+income = st.number_input('Enter your annual income', min_value=0.0, step=500.0)
 
-# Physical activity, alcohol, diet, and sleep options with checkboxes and unique keys
-st.write('Select your physical activity level:')
-physical_activity = {
-    'Sedentary': st.checkbox('Sedentary', key='act_sedentary'),
-    'Moderate': st.checkbox('Moderate', key='act_moderate'),
-    'Active': st.checkbox('Active', key='act_active')
+# Dropdowns for categorical variables with options
+marital_status = st.selectbox('Select your marital status', ['Single', 'Married', 'Divorced', 'Widowed'])
+education_level = st.selectbox('Select your education level', [
+    'High School', 'Associate Degree', "Bachelor's Degree", "Master's Degree", 'PhD'
+])
+physical_activity_level = st.selectbox('Select your physical activity level', ['Sedentary', 'Moderate', 'Active'])
+alcohol_consumption_level = st.selectbox('Select your alcohol consumption level', ['Low', 'Moderate', 'High'])
+diet_level = st.selectbox('Select your dietary habits', ['Unhealthy', 'Moderate', 'Healthy'])
+sleep_level = st.selectbox('Select your sleep patterns', ['Poor', 'Fair', 'Good'])
+
+# Checkboxes for historical conditions
+mental_illness_history = st.checkbox('History of Mental Illness')
+substance_abuse_history = st.checkbox('History of Substance Abuse')
+family_depression_history = st.checkbox('Family History of Depression')
+
+# Feature engineering for age groups (creating dummies)
+age_group = {
+    'Age_Childhood': 1 if 0 < age < 12 else 0,
+    'Age_Adolescence': 1 if 12 <= age < 18 else 0,
+    'Age_Young Adulthood': 1 if 18 <= age < 40 else 0,
+    'Age_Adulthood': 1 if 40 <= age < 60 else 0,
+    'Age_Eld': 1 if age >= 60 else 0
 }
-physical_activity_level = max(physical_activity, key=physical_activity.get)
 
-st.write('Select your alcohol consumption level:')
-alcohol_consumption = {
-    'Low': st.checkbox('None', key='alc_low'),
-    'Moderate': st.checkbox('Occasional', key='alc_moderate'),
-    'High': st.checkbox('Habitual', key='alc_high')
-}
-alcohol_consumption_level = max(alcohol_consumption, key=alcohol_consumption.get)
+# Create a DataFrame that matches the model's expected format
+input_data = pd.DataFrame({
+    'Log_Income': [np.log1p(income)],
+    'Number of Children': [0],  # If this column is no longer used, update accordingly.
+    'Smoking Status': [1 if smoking_status else 0],
+    'Employment Status': [1 if employment_status else 0],
+    'Physical Activity Level': [0 if physical_activity_level == 'Sedentary' else 5 if physical_activity_level == 'Moderate' else 10],
+    'Alcohol Consumption': [0 if alcohol_consumption_level == 'Low' else 5 if alcohol_consumption_level == 'Moderate' else 10],
+    'Dietary Habits': [10 if diet_level == 'Unhealthy' else 5 if diet_level == 'Moderate' else 0],
+    'Sleep Patterns': [10 if sleep_level == 'Poor' else 5 if sleep_level == 'Fair' else 0],
+    'History of Mental Illness': [1 if mental_illness_history else 0],
+    'History of Substance Abuse': [1 if substance_abuse_history else 0],
+    'Family History of Depression': [1 if family_depression_history else 0],
+    'Status_Single': [1 if marital_status == 'Single' else 0],
+    'Status_Married': [1 if marital_status == 'Married' else 0],
+    'Status_Divorced': [1 if marital_status == 'Divorced' else 0],
+    'Status_Widowed': [1 if marital_status == 'Widowed' else 0],
+    'Education_High School': [1 if education_level == 'High School' else 0],
+    'Education_Associate Degree': [1 if education_level == 'Associate Degree' else 0],
+    "Education_Bachelor's Degree": [1 if education_level == "Bachelor's Degree" else 0],
+    "Education_Master's Degree": [1 if education_level == "Master's Degree" else 0],
+    'Education_PhD': [1 if education_level == 'PhD' else 0],
+    **age_group  # Add age group dummies
+})
 
-st.write('Indicate your dietary habits:')
-diet_habits = {
-    'Unhealthy': st.checkbox('Unhealthy', key='diet_unhealthy'),
-    'Moderate': st.checkbox('Regular', key='diet_moderate'),
-    'Healthy': st.checkbox('Adequate', key='diet_healthy')
-}
-diet_level = max(diet_habits, key=diet_habits.get)
-
-st.write('Indicate your sleep patterns:')
-sleep_patterns = {
-    'Poor': st.checkbox('Poor', key='sleep_poor'),
-    'Fair': st.checkbox('Regular', key='sleep_fair'),
-    'Good': st.checkbox('Good', key='sleep_good')
-}
-sleep_level = max(sleep_patterns, key=sleep_patterns.get)
-
-st.write('Check the boxes corresponding to your history, if any.')
-
-# Medical histories as checkboxes with unique keys
-mental_illness_history = st.checkbox('History of Mental Illness', key='hist_mental')
-substance_abuse_history = st.checkbox('History of Substance Abuse', key='hist_abuse')
-family_depression_history = st.checkbox('Family History of Depression', key='hist_family_depression')
-
-# Map input values to numeric values
-marital_status = {'Single': 3, 'Married': 2, 'Divorced': 1, 'Widowed': 0}[marital_status]
-education_level = {'High School': 0, "Bachelor's Degree": 2, "Post-university": 3, 'PhD': 1}[education_level]
-smoking_status = 1 if smoking_status else 0
-employment_status = 1 if employment_status else 0
-physical_activity_level = {'Sedentary': 0, 'Moderate': 1, 'Active': 2}[physical_activity_level]
-alcohol_consumption_level = {'Low': 0, 'Moderate': 1, 'High': 2}[alcohol_consumption_level]
-diet_level = {'Unhealthy': 0, 'Moderate': 1, 'Healthy': 2}[diet_level]
-sleep_level = {'Poor': 0, 'Fair': 1, 'Good': 2}[sleep_level]
-mental_illness_history = 1 if mental_illness_history else 0
-substance_abuse_history = 1 if substance_abuse_history else 0
-family_depression_history = 1 if family_depression_history else 0
+# Align the input DataFrame to match the training columns
+input_data = input_data.reindex(columns=model.feature_names_in_, fill_value=0)
 
 # Button to make prediction
 if st.button('Predict'):
-    # Create a DataFrame with the entered data
-    user_data = pd.DataFrame({
-        'Age': [age],
-        'Marital Status': [marital_status],
-        'Education Level': [education_level],
-        'Number of Children': [num_children],
-        'Smoking Status': [smoking_status],
-        'Physical Activity Level': [physical_activity_level],
-        'Employment Status': [employment_status],
-        'Income': [income],
-        'Alcohol Consumption': [alcohol_consumption_level],
-        'Dietary Habits': [diet_level],
-        'Sleep Patterns': [sleep_level],
-        'History of Mental Illness': [mental_illness_history],
-        'History of Substance Abuse': [substance_abuse_history],
-        'Family History of Depression': [family_depression_history]
-    })
-
     # Make prediction
-    prediction = model.predict(user_data)
-    probability = model.predict_proba(user_data)[0][1]  # Get chronicity probability
+    prediction = model.predict(input_data)
+    probability = model.predict_proba(input_data)[0][1]  # Get chronicity probability
 
-    # Convert probability to percentage
-    probability_percentage = probability * 100
+    # Display result as text instead of numerical probability
+    result_text = "More than 50%" if probability > 0.5 else "Less than 50%"
 
-    # Display simplified result
-    result = "Yes" if probability > 0.5 else "No"
-    st.write(f'Chronicity Probability: {result} ({probability_percentage:.2f}%)')
-
-
-### A FUTURO: 
-# Try/except por si no se introduce un campo. 
-# Marcar campos como obligatorios con asteriscos o algo.
-#  Una introducción más de marketing en el streamlit
+    # Display result in Streamlit
+    st.write(f'Chronicity Probability: {result_text}')
