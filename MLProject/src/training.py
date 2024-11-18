@@ -1,18 +1,13 @@
 import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
 from imblearn.over_sampling import SMOTE
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import RandomizedSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
-from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 import pickle
-
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.decomposition import PCA
 
 df_procesado = pd.read_csv('../data/processed/df_procesado.csv', index_col=0)
 
@@ -30,24 +25,24 @@ def modelo_entreno(df):
     smote = SMOTE(random_state=42)
     x_resampled, y_resampled = smote.fit_resample(x_train, y_train)
 
-    minmax_scaler = MinMaxScaler()
-    minmax_scaler.fit(x_train)
-    x_train_scaled = minmax_scaler.transform(x_train)
-    x_test_scaled = minmax_scaler.transform(x_test)
+    pipeline_knn = Pipeline([
+    ('scaler', StandardScaler()),
+    ('pca', PCA(n_components=2)),
+    ('classifier', KNeighborsClassifier())
+    ])
 
-    random_forest_model = RandomForestClassifier(
-        n_estimators=30,       
-        max_depth=10,           
-        min_samples_split=4,  
-        min_samples_leaf=4,   
-        class_weight='balanced',
-        random_state=42         
-    )
-    random_forest_model.fit(x_train, y_train)
+    param_grid_knn = {
+        'pca__n_components': [5, 6, 7, 8],
+        'classifier__n_neighbors': [1, 2 ,3, 4],
+        'classifier__weights': ['distance', 'uniform']
+    }
 
-    return random_forest_model
+    grid_search_knn = GridSearchCV(pipeline_knn, param_grid_knn, cv=5, scoring='recall',n_jobs=-1,verbose=1)
+    grid_search_knn.fit(x_resampled, y_resampled)
 
-random_forest_model = modelo_entreno(df_procesado)
+    return grid_search_knn
 
-with open('../models/train_model_rf.pkl', 'wb') as archivo:
-    pickle.dump(random_forest_model, archivo)
+best_model = modelo_entreno(df_procesado)
+
+with open('../models/best_model.pkl', 'wb') as archivo:
+    pickle.dump(best_model, archivo)
