@@ -4,10 +4,28 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
+import os
 
-# Load the trained model
-with open('best_model_app.pkl', 'rb') as f:
-    model = pickle.load(f)
+# Construir la ruta absoluta del modelo
+current_dir = os.path.dirname(os.path.abspath(__file__))
+st.write("Archivos en el directorio actual:", os.listdir(current_dir))
+model_path = os.path.join(current_dir, 'best_model_app.pkl')
+
+# Intentar cargar el modelo
+try:
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
+    st.write("Modelo cargado exitosamente.")
+except FileNotFoundError:
+    st.error(f"Error: No se encontró el archivo en la ruta: {model_path}")
+    raise
+except Exception as e:
+    st.error(f"Error inesperado al cargar el modelo: {e}")
+    raise
+
+# # Load the trained model
+# with open('best_model_app.pkl', 'rb') as f:
+#     model = pickle.load(f)
 
 
 # Streamlit app introduction with professional tone and disclaimers
