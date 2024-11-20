@@ -5,18 +5,19 @@ import pandas as pd
 import numpy as np
 import pickle
 import os
+from joblib import load
 
 
 
 # Construir la ruta absoluta del modelo
 current_dir = os.path.dirname(os.path.abspath(__file__))
 st.write("Archivos en el directorio actual:", os.listdir(current_dir))
-model_path = os.path.join(current_dir, 'best_model_app.pkl')
 
 # Intentar cargar el modelo
 try:
-    with open(model_path, 'rb') as f:
-        model = pickle.load(f)
+    # Cargar el modelo con joblib
+    model_path = os.path.join(current_dir, 'best_model_app.joblib')
+    model = load(model_path)
     st.write("Modelo cargado exitosamente.")
 except FileNotFoundError:
     st.error(f"Error: No se encontró el archivo en la ruta: {model_path}")
@@ -113,8 +114,12 @@ if st.button('Predict'):
     prediction = model.predict(input_data)
     probability = model.predict_proba(input_data)[0][1]  # Get chronicity probability
 
-    # Display result as text instead of numerical probability
-    result_text = "More than 50% probabilities of developing a Chronic Depression. handle this case with extra care." if probability > 0.5 else "Less than 50% probabilities of developing a Chronic Depression. handle this case with extra care."
+    # Custom result text based on the probability
+    if probability > 0.5:
+        result_text = "The patient has a high probability (>50%) of developing chronic depression. Please consider this case with extra care."
+    else:
+        result_text = "The patient has a low probability (<50%) of developing chronic depression. This does not rule out the possibility, so further assessment is advised."
 
-    # Display result in Streamlit
-    st.write('Chronicity Probability:', result_text, 'Please, take this results with caution. This app does not and must not substitute medical crtieria.')
+    # Display the result
+    st.write('Chronicity Prediction:', result_text)
+    st.write("**Note**: This prediction is an additional tool and should not replace clinical judgment.")
