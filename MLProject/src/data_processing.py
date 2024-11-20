@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 df = pd.read_csv('../data/raw/dataset.csv/depression_data.csv')
 
@@ -10,11 +11,7 @@ def procesador(df):
 
     def clasificar_edad(df):
         def categorizar_edad(i):
-            if 0 < i < 12:
-                return 'Childhood'
-            elif 12 <= i < 18:
-                return 'Adolescence'
-            elif 18 <= i < 40:
+            if 18 <= i < 40:
                 return 'Young Adulthood'
             elif 40 <= i < 60:
                 return 'Adulthood'
@@ -41,15 +38,22 @@ def procesador(df):
     df = pd.concat([df, dummies], axis=1)
     df.drop(columns='Marital Status', inplace=True)
 
+    df['Log_Income'] = np.log1p(df['Income'])
+
+    df.drop(columns = ['Income'], inplace = True)  
+
     dummies_education = pd.get_dummies(df['Education Level'], prefix='Education')
     df = pd.concat([df, dummies_education], axis=1)
     df.drop(columns='Education Level', inplace=True)
 
     df['Employment Status'] = df['Employment Status'].replace({'Unemployed': 1, 'Employed': 0})
+    
     df.drop(columns='Name', inplace=True)
 
     df['Target'] = df['Chronic Medical Conditions']
     df.drop(columns='Chronic Medical Conditions', inplace=True)
+
+    return df
 
 df = procesador(df)
 
