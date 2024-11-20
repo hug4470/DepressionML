@@ -5,8 +5,8 @@ import pandas as pd
 import numpy as np
 import pickle
 import os
-from sklearn.metrics import _scorer  
-scorer = _scorer._PredictScorer
+
+
 
 # Construir la ruta absoluta del modelo
 current_dir = os.path.dirname(os.path.abspath(__file__))
