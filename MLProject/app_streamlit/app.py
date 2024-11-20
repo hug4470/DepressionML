@@ -6,7 +6,7 @@ import numpy as np
 import pickle
 
 # Load the trained model
-with open('../models/best_model.pkl', 'rb') as f:
+with open('../models/best_model2.pkl', 'rb') as f:
     model = pickle.load(f)
 
 
@@ -94,7 +94,7 @@ if st.button('Predict'):
     probability = model.predict_proba(input_data)[0][1]  # Get chronicity probability
 
     # Display result as text instead of numerical probability
-    result_text = "More than 50%" if probability > 0.5 else "Less than 50%"
+    result_text = "More than 50% probabilities of developing a Chronic Depression. handle this case with extra care." if probability > 0.5 else "Less than 50% probabilities of developing a Chronic Depression. handle this case with extra care."
 
     # Display result in Streamlit
-    st.write(f'Chronicity Probability: {result_text}')
+    st.write('Chronicity Probability:', result_text, 'Please, take this results with caution. This app does not and must not substitute medical crtieria.')
