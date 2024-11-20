@@ -6,7 +6,7 @@ import numpy as np
 import pickle
 
 # Load the trained model
-with open('../models/best_model2.pkl', 'rb') as f:
+with open('../models/otros/best_model2.pkl', 'rb') as f:
     model = pickle.load(f)
 
 
