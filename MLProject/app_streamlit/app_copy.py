@@ -12,12 +12,6 @@ from joblib import load
 st.cache_resource.clear()  # Limpia recursos en caché
 st.cache_data.clear()      # Limpia datos en caché
 
-
-# st.write("scikit-learn version:", sklearn.__version__)
-# st.write("numpy version:", numpy.__version__)
-# st.write("joblib version:", joblib.__version__)
-
-
 # Construir la ruta absoluta del modelo
 current_dir = os.path.dirname(os.path.abspath(__file__))
 st.write("Archivos en el directorio actual:", os.listdir(current_dir))

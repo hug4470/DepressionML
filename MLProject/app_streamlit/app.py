@@ -16,7 +16,7 @@ from joblib import load
 
 # Construir la ruta absoluta del modelo
 current_dir = os.path.dirname(os.path.abspath(__file__))
-st.write("Archivos en el directorio actual:", os.listdir(current_dir))
+# st.write("Archivos en el directorio actual:", os.listdir(current_dir))
 
 # Intentar cargar el modelo
 try:
