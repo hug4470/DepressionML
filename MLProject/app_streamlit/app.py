@@ -9,9 +9,9 @@ import os
 import joblib
 from joblib import load
 
-st.write("scikit-learn version:", sklearn.__version__)
-st.write("numpy version:", numpy.__version__)
-st.write("joblib version:", joblib.__version__)
+# st.write("scikit-learn version:", sklearn.__version__)
+# st.write("numpy version:", numpy.__version__)
+# st.write("joblib version:", joblib.__version__)
 
 
 # Construir la ruta absoluta del modelo
@@ -23,7 +23,7 @@ try:
     # Cargar el modelo con joblib
     model_path = os.path.join(current_dir, 'best_model_app.joblib')
     model = load(model_path)
-    st.write("Modelo cargado exitosamente.")
+    # st.write("Modelo cargado exitosamente.")
 except FileNotFoundError:
     st.error(f"Error: No se encontró el archivo en la ruta: {model_path}")
     raise
