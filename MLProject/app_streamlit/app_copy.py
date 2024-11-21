@@ -9,6 +9,10 @@ import os
 import joblib
 from joblib import load
 
+st.cache_resource.clear()  # Limpia recursos en caché
+st.cache_data.clear()      # Limpia datos en caché
+
+
 # st.write("scikit-learn version:", sklearn.__version__)
 # st.write("numpy version:", numpy.__version__)
 # st.write("joblib version:", joblib.__version__)
